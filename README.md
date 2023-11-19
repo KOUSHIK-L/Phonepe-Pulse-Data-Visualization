@@ -18,11 +18,23 @@ The Phonepe pulse Github repository contains a large amount of data related to v
   
 6. **Deployment:** The application was made user-friendly for gaining insights and to know information about their Phone Pe app usage and money transactions.
 
-**Tools used and Skills gained**
-Github Cloning 
-Python
-Pandas
-MySQL
-mysql-connector-python 
-Streamlit
-Plotly.
+### Tools Used and Skills Gained
+
+#### 1. GitHub Cloning
+   - Used Git to clone repositories from GitHub.
+
+#### 2. Programming Language
+   - Python 
+
+#### 3. Data Manipulation and Analysis
+   - Pandas Library
+
+#### 4. Database and Connection
+   - MySQL
+   - mysql-connector-python 
+
+#### 5. Web Application
+   - Streamlit
+
+#### 6. Data Visualization
+   - Plotly Library
