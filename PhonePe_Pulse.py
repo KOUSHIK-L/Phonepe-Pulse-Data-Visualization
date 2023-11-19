@@ -11,20 +11,9 @@ from streamlit_option_menu import option_menu
 import plotly.express as px
 from PIL import Image
 
-# Configuring Stramlit page
-st.set_page_config(page_title='PhonePe Pulse', layout="wide")
-# Theme of Streamlit Page
-base="light"
-primaryColor="#6739b7"
-font="serif"
-secondaryColor = "#F0F2F6"
-textColor = "#31333F"
-backgroundColor = "#FFFFFF"
-
 # Establishing Python-MySQL Connection
-mydb = pymysql.connect(host="127.0.0.1", user="root", password="Koushik@29",database="PhonePe01")
+mydb = pymysql.connect(host="127.0.0.1", user="root", password="Koushik@29")
 sql = mydb.cursor()
-sql.execute("USE PhonePe01")
 
 # Phonepe data collection from the Github repository
 def Data_Collection():
@@ -34,8 +23,7 @@ def Data_Collection():
         pass
 
 
-# Defining a class for extracting data from a downloaded local repository
-# class DataExtraction:
+# Defining a functions for extracting data from the downloaded local repository
 def aggregate_transaction():
     path = "D:\\PhonePe_Data\\data\\aggregated\\transaction\\country\\india\\state\\"
     agg_state = os.listdir(path)
@@ -172,7 +160,6 @@ def map_user():
     return data
 
 
-
 def top_transaction():
     path = "D:\\PhonePe_Data\\data\\top\\transaction\\country\\india\\state\\"
     agg_state = os.listdir(path)
@@ -270,10 +257,12 @@ tt = update_state_names(tt0, geojson_data)
 tu = update_state_names(tu0, geojson_data)
 
 # to export all the created datfames to MySQL database 
-sql.execute("USE PhonePe01")
+sql.execute("CREATE DATABASE IF NOT EXISTS phonepe_pulse")
+sql.execute("USE phonepe_pulse")
 sql = mydb.cursor()
 
-def data_extraction():
+# Function for creating tables and insering values into the tables 
+def Data_Transform():
     try:
         sql.execute("CREATE TABLE Aggregate_Transaction(State VARCHAR(50), Year INT, Quarter CHAR(2), Transaction_type VARCHAR(30), Transaction_count INT, Transaction_amount BIGINT)")
         insert1 = "INSERT INTO Aggregate_Transaction(State, Year, Quarter, Transaction_type, Transaction_count, Transaction_amount) VALUES (%s,%s,%s,%s,%s,%s)"  
@@ -315,7 +304,7 @@ def data_extraction():
 
 
 
-# 
+# Functions to get list of items from the extracted data
 def state_list():
     df = pd.read_sql_query('SELECT DISTINCT state FROM map_user ORDER BY state', mydb)
     state_list = list(df['state'])
@@ -337,20 +326,23 @@ def user_brand():
 # Fetching GeoJSON data from the URL
 url = 'https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson'
 
+# Creating a calss for all the plots used from Plotly Library
 class Plotly():
+    # Creating the choropleth map using Plotly Express
     def choropleth_plot(data, location_value, color_value, title_name,title_x):
-        # Creating the choropleth map using Plotly Express
         fig = px.choropleth(data, geojson=url , featureidkey='properties.ST_NM', locations=location_value,
                             color=color_value, color_continuous_scale='sunset', title=title_name, width=600, height=800)
         fig.update_geos(fitbounds="locations", visible=False)
         fig.update_layout(title_x=title_x, title_y=0.85, title_font=dict(size=28), title_font_color='#6739B7')
         st.plotly_chart(fig,theme="streamlit", use_container_width=True)
-
+    
+    # Pie plt using Plotly express
     def pie_plot(df, x, y, title,title_x=0.15):
         fig = px.pie(df, names=x, values=y, title=title,color_discrete_sequence=['#3C9D4E', '#7031AC', '#C94D6D', '#E4BF58', '#FD6787','#4174C9'])
         fig.update_layout(title_x=title_x, title=dict(font=dict(size=20, family='serif', color='black')))
         st.plotly_chart(fig, theme="streamlit", use_container_width=True)
-     
+
+    # Bar plot using Plotly express 
     def bar_plot(df,x,y,title,xaxis,yaxis,title_x):
         fig = px.bar(df, x=x,y=y,title=title,text_auto='.2s',height=600,width=600)
         fig.update_traces(marker_color= '#6739B7', textfont_size = 14, textangle = 0, textposition = "outside")
@@ -360,6 +352,7 @@ class Plotly():
         yaxis= dict(title_font=dict(size=16, family='serif', color='black'), tickfont=dict(size=14, family='serif')),)
         st.plotly_chart(fig,  use_container_width=True)
     
+    # Horizontal Bar plot using Plotly express 
     def horizontal_bar_plot(df,x,y,title,xaxis,yaxis,title_x,width,height):
         fig = px.bar(df, x=x,y=y,title=title,text_auto='.2s',width=width,height=height)
         fig.update_traces(marker_color= '#6739B7', textfont_size = 14, textangle = 0, textposition = "outside")
@@ -368,6 +361,17 @@ class Plotly():
         xaxis= dict(title_font=dict(size=18, family='serif', color='black'), tickfont=dict(size=14, family='serif')), 
         yaxis= dict(title_font=dict(size=18, family='serif', color='black'), tickfont=dict(size=14, family='serif')),)
         st.plotly_chart(fig, theme="streamlit", use_container_width=True)
+
+
+# Configuring Stramlit page
+st.set_page_config(page_title='PhonePe Pulse', layout="wide")
+# Theme of Streamlit Page
+base = "light"
+primaryColor = "#6739b7"
+font = "serif"
+secondaryColor = "#F0F2F6"
+textColor = "#31333F"
+backgroundColor = "#FFFFFF"
 
 
 # Streamlit Page Title Markdown
@@ -387,64 +391,81 @@ if select=="About Data":
         st.image(image1, caption ='Source Credit - https://en.wikipedia.org/wiki/PhonePe', width=350)
     with cm3:
         st.write('')
-
+    st.write('')
     st.write('''PhonePe is an Indian digital payments and financial services company headquartered in Bengaluru, Karnataka, India. 
              The PhonePe app, based on the Unified Payments Interface (UPI), by using PhonePe, users can send and receive money, recharge mobile, DTH, data cards, make utility payments, pay at shops, invest in tax saving funds, buy insurance, mutual funds, and digital gold.
              PhonePe Pulse is the window to the world of how India transacts with interesting trends, deep insights and in-depth analysis based on the data put together by the PhonePe team.''') 
     st.write('')
-    st.subheader('Problem Statement')
-    st.write('The Phonepe pulse Github repository contains a large amount of data related to various metrics and statistics. The goal is to extract this data and process it to obtain insights and information that can be visualized in a user-friendly manner.')     
-    st.write('According to this problem statement Data analysis is cosidered into three Steps here;')
-    st.subheader('1.Data Extraction')
-    st.write('The PhonePe data is cloned from the GitHub repository and stored in the local storage as JSON format files.')
-    st.subheader('2. Data Transformation')
-    st.write('Unstructured data is converted into a structured form and stored in a MySQL database using Python, Pandas, and SQL.')
-    st.subheader('3. Data Exploration')
-    st.write('The stored data is retrieved from the database for analysis and explored using the Plotly Python library for visualization, and the output is presented through a Streamlit application.')
+    st.subheader(':violet[Problem Statement]')
+    st.write('The Phonepe pulse Github repository contains a wealth of data related to various metrics and statistics. The challenge is to extract and process this data to derive insights and information that can be visually presented in a user-friendly manner.')
+    st.write('Here\'s how we approach this problem:')
+    
+    # Add interactive bullet points
+    st.markdown("- :red[**Data Extraction:**] The PhonePe data is cloned from the GitHub repository and stored locally as JSON format files.")
+    st.markdown("- :red[**Data Transformation:**] Unstructured data is converted into a structured form and stored in a MySQL database using Python, Pandas, and SQL.")
+    st.markdown("- :red[**Data Exploration:**] The stored data is retrieved from the database, analyzed, and explored using the Plotly Python library for visualization. The results are presented through a Streamlit application.")
     st.write(' ')
     
-    st.header('PhonePe Pulse - Data of Indian Online money Transactions')
+    st.header(':violet[PhonePe Pulse - Exploring Indian Online Money Transactions]')
     st.write('')
-    st.subheader('Data Explorations done through the below described informations')
-    st.write('**Aggregated Transaction:** State wise Transaction Amount and Transaction Count based on different years, their Quarters and Transaction Types')
-    st.write('**Aggregated User:** PhonePe Users State wise based on different years, their Quarters and user phone brand wise')
-    st.write('**Map Transaction:** Total Transaction amount and count district wise for all years and their quarters of all states' )
-    st.write('**Map User:** Total number of Registered users and app opens state and district wise for all years and their respective quarters')
-    st.write("**Top Transaction:** Top 10 highest transaction Amount and count of all state's top districts and pincodes for all years and their quarters")
-    st.write("**Top User:** Top 10 highest transRegistered Users of all state's top districts and pincodes for all years and their quarters")
-    st.subheader('Guide through for this anlysis')
-    st.write('The datas are categorised into:')
-    st.write('**-> Transaction**')
-    st.write('**-> Users**')
-    st.write('Then for each above category there will be sub-categories as:') 
-    sc1,sc2,sc3 = st.columns(3)
-    with sc1: 
-        st.write('**Location based Analysis**')
-        st.write('-> Overall Country wise - India')
-        st.write('-> State wise')
-        st.write('-> District wise')
-        st.write('-> Pincode wise')
-        st.write('-> Top Categories of each')
-    with sc2:         
-        st.write('**Time Based Analysis**')  
-        st.write('-> Year wise')
-        st.write('-> Quarter wise')
-        st.write('-> Top Categoreis of each')
+    st.subheader('Data Explorations include:')
+    # Add interactive bullet points
+    st.markdown("- :red[**Aggregated Transaction:**] State-wise Transaction Amount and Transaction Count based on different years, quarters, and transaction types.")
+    st.markdown("- :red[**Aggregated User:**] PhonePe Users State-wise based on different years, quarters, and user phone brand.")
+    st.markdown("- :red[**Map Transaction:**] Total Transaction amount and count district-wise for all years and quarters of all states.")
+    st.markdown("- :red[**Map User:**] Total number of Registered users and app opens state and district-wise for all years and quarters.")
+    st.markdown("- :red[**Top Transaction:**] Top 10 highest transaction Amount and count of all state's top districts and pincodes for all years and quarters.")
+    st.markdown("- :red[**Top User:**] Top 10 highest Registered Users of all state's top districts and pincodes for all years and quarters.")
+    st.subheader('Guide through for this analysis')
+    st.write('The data is categorized into:')
+    st.markdown(":red[**- Transaction**]")
+    st.markdown(":red[**- Users**]")
+    
+    st.write('For each category, there are sub-categories such as:')
+    
+    sc1, sc2, sc3 = st.columns(3)
+    with sc1:
+        # Add interactive bullet points
+        st.markdown("#### :violet[Location-based Analysis]")
+        st.markdown("- Overall Country-wise - India")
+        st.markdown("- State-wise")
+        st.markdown("- District-wise")
+        st.markdown("- Pincode-wise")
+        st.markdown("- Top Categories of each")
+        
+    with sc2:
+        # Add interactive bullet points
+        st.markdown("#### :violet[Time-based Analysis]")
+        st.markdown("- Year-wise")
+        st.markdown("- Quarter-wise")
+        st.markdown("- Top Categories of each")
+
     with sc3:
-        st.write('**Type Based Analysis**')
-        st.write('-> Transaction Type wise')
-        st.write('-> User Brand wise')
+        # Add interactive bullet points
+        st.markdown("#### :violet[Type-based Analysis]")
+        st.markdown("- Transaction Type-wise")
+        st.markdown("- User Brand-wise")
+
 
 
 #  Data Anlysois and Exploration 
 elif select=="Data Analysis":
     main = st.selectbox('Select any Process',('','Data Extraction','Data Transform','Data Exploration'))
-    if main=='Data Extraction' and st.button("Extract"):
-        # Data_Collection()
-        st.success('**Extracted!**')
-    elif main=='Data Transform' and st.button("Transform"):
-        # Data_Transfrom()
-        st.success('**Transformed!**')
+    if main=='Data Extraction':
+        st.subheader(':violet[Data Collection and Extraction:]')
+        st.markdown('- In the data extraction phase, Python is employed to clone data from the PhonePe Pulse GitHub repository. This raw data is then locally stored in JSON format.') 
+        st.markdown('- As part of this step, the unstructured data is transformed into a structured format in preparation for preprocessing.')    
+        if st.button("**Extract Data**"):
+            Data_Collection()
+            st.success('**Extracted!**')
+    
+    elif main=='Data Transform': 
+        st.subheader(':violet[Data Transformation:]')
+        st.markdown('- During the data transformation phase, the collected data undergoes essential preprocessing processes, such as data cleaning and handling missing values.') 
+        st.markdown('- Following this, the processesd and structured data is inserted into a MySQL Database, serving as a Ware House of datas for further in-depth analysis and visualization.')
+        if st.button('**Transform Data**'):
+            Data_Transform()
+            st.success('**Transformed!**')
     
     elif main=='Data Exploration':
         transaction, users = st.tabs(['Trasactions','Users'])
@@ -453,10 +474,16 @@ elif select=="Data Analysis":
             with location:
                 tab_india, tab_state, tab_district, tab_pincode =st.tabs(['India','States','Districts','Pincodes'])
                 with tab_india:
-                    df1 = pd.read_sql_query(f"SELECT state, SUM(transaction_amount) AS Transaction_amount, SUM(transaction_count) AS Transaction_count FROM Aggregate_Transaction GROUP BY state",mydb)
-                    Plotly.choropleth_plot(df1,'state','Transaction_amount','State wise Transaction Amount (INR) by All Years', 0.2)
-                    Plotly.choropleth_plot(df1,'state','Transaction_count','State wise Transaction Count by All Years',0.25)
-                
+                    year_select = st.select_slider('Select a Year', options = ['All Years','2018','2019','2020','2021','2022','2023'], key='sst_i')
+                    if year_select == "All Years":
+                        df1 = pd.read_sql_query(f"SELECT state, SUM(transaction_amount) AS Transaction_amount, SUM(transaction_count) AS Transaction_count FROM Aggregate_Transaction GROUP BY state",mydb)
+                        Plotly.choropleth_plot(df1,'state','Transaction_amount','Overall State wise Transaction Amount (INR) by All Years', 0.2)
+                        Plotly.choropleth_plot(df1,'state','Transaction_count','Overall State wise Transaction Count by All Years',0.25)
+                    if year_select != "All Years":
+                        df2 = pd.read_sql_query(f"SELECT state, SUM(transaction_amount) AS Transaction_amount, SUM(transaction_count) AS Transaction_count FROM Aggregate_Transaction WHERE year={year_select} GROUP BY state",mydb)
+                        Plotly.choropleth_plot(df2,'state','Transaction_amount',f"Overall State wise Transaction Amount (INR) by {year_select}", 0.2)
+                        Plotly.choropleth_plot(df2,'state','Transaction_count',f"Overall State wise Transaction Count by {year_select}",0.25)
+                    
                 with tab_state:
                     overall_t_state, indepth_t_state, top_t_state = st.tabs(['Overall Analysis','Indepth Analysis','Top Categories'])
                     with overall_t_state:
@@ -512,7 +539,7 @@ elif select=="Data Analysis":
                                 Plotly.pie_plot(df4, df4['transaction_type'], df4['Transaction_count'], f"{state} Transaction Count in {year}-{quarter}")                          
 
                         if show_by_transaction:
-                            if state and year and quarter and transaction:
+                            if state and year and transaction:
                                 df5 = pd.read_sql_query(f"SELECT year, transaction_type, SUM(transaction_amount) AS Transaction_amount FROM Aggregate_Transaction WHERE transaction_type='{transaction}' GROUP BY year ORDER BY Transaction_amount", mydb)
                                 df6 = pd.read_sql_query(f"SELECT year, transaction_type, SUM(transaction_count) AS Transaction_count FROM Aggregate_Transaction WHERE transaction_type='{transaction}' GROUP BY year ORDER by Transaction_Count", mydb)
                                 Plotly.bar_plot(df5, 'year', 'Transaction_amount', f"{state} Transaction Amount (INR) in {year} by {transaction}", f"{transaction} type Year wise", 'Transaction Amount (INR)',  0.3)
@@ -815,9 +842,14 @@ elif select=="Data Analysis":
             with location_user:
                 tab_u_india, tab_u_state, tab_u_district, tab_u_pincode =st.tabs(['India','States','Districts','Pincodes'])
                 with tab_u_india:
-                    df1 = pd.read_sql_query(f"SELECT state, SUM(user_count) AS User_Count FROM Aggregate_User GROUP BY state",mydb)
-                    Plotly.choropleth_plot(df1,'state','User_Count','State wise User Count for All Years', 0.2)
-                    
+                    year_select = st.select_slider('Select a Year', options = ['All Years','2018','2019','2020','2021','2022'], key='ssu_i')
+                    if year_select == 'All Years':
+                        df1 = pd.read_sql_query(f"SELECT state, SUM(user_count) AS User_Count FROM Aggregate_User GROUP BY state",mydb)
+                        Plotly.choropleth_plot(df1,'state','User_Count','Overall State wise User Count for All Years', 0.25)
+                    if year_select != 'All Years':
+                        df2 = pd.read_sql_query(f"SELECT state, SUM(user_count) AS User_Count FROM Aggregate_User WHERE year={year_select} GROUP BY state",mydb)
+                        Plotly.choropleth_plot(df2,'state','User_Count',f"Overall State wise User Count for {year_select}", 0.25)
+
                 with tab_u_state:
                     overall_u_state,indepth_u_state,top_u_state = st.tabs(['Overall Analysis','Indepth Analysis','Top Categories'])
                     with overall_u_state:
