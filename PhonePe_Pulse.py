@@ -12,7 +12,7 @@ import plotly.express as px
 from PIL import Image
 
 # Establishing Python-MySQL Connection
-mydb = pymysql.connect(host="127.0.0.1", user="root", password= #enter MySQL workbench password as string)
+mydb = pymysql.connect(host="127.0.0.1", user="root", password="Koushik@29")
 sql = mydb.cursor()
 
 # Phonepe data collection from the Github repository
@@ -303,7 +303,6 @@ def Data_Transform():
         pass
 
 
-
 # Functions to get list of items from the extracted data
 def state_list():
     df = pd.read_sql_query('SELECT DISTINCT state FROM map_user ORDER BY state', mydb)
@@ -333,7 +332,7 @@ class Plotly():
         fig = px.choropleth(data, geojson=url , featureidkey='properties.ST_NM', locations=location_value,
                             color=color_value, color_continuous_scale='sunset', title=title_name, width=600, height=800)
         fig.update_geos(fitbounds="locations", visible=False)
-        fig.update_layout(title_x=title_x, title_y=0.85, title_font=dict(size=28), title_font_color='#6739B7')
+        fig.update_layout(title_x=title_x, title_y=0.90, title_font=dict(size=28), title_font_color='#6739B7')
         st.plotly_chart(fig,theme="streamlit", use_container_width=True)
     
     # Pie plt using Plotly express
@@ -364,7 +363,7 @@ class Plotly():
 
 
 # Configuring Stramlit page
-st.set_page_config(page_title='PhonePe Pulse', layout="wide")
+st.set_page_config(page_title='PhonePe Pulse', page_icon=':pound:',layout="wide")
 # Theme of Streamlit Page
 base = "light"
 primaryColor = "#6739b7"
@@ -380,8 +379,8 @@ st.write('')
 st.write('')
 
 # creating an option menu for various data exploration steps
-select = option_menu(None, options=['About Data','Data Analysis','Exit Data'],orientation='horizontal')
-# About Data  
+select = option_menu(None, options=['About Data','Data Analysis','Data Insights'],orientation='horizontal')
+# About Data Tab  
 if select=="About Data":
     image1 = Image.open("D:\PhonePe_Logo.svg.png")
     cm1,cm2,cm3 = st.columns(3)  
@@ -400,7 +399,6 @@ if select=="About Data":
     st.write('The Phonepe pulse Github repository contains a wealth of data related to various metrics and statistics. The challenge is to extract and process this data to derive insights and information that can be visually presented in a user-friendly manner.')
     st.write('Here\'s how we approach this problem:')
     
-    # Add interactive bullet points
     st.markdown("- :red[**Data Extraction:**] The PhonePe data is cloned from the GitHub repository and stored locally as JSON format files.")
     st.markdown("- :red[**Data Transformation:**] Unstructured data is converted into a structured form and stored in a MySQL database using Python, Pandas, and SQL.")
     st.markdown("- :red[**Data Exploration:**] The stored data is retrieved from the database, analyzed, and explored using the Plotly Python library for visualization. The results are presented through a Streamlit application.")
@@ -409,7 +407,7 @@ if select=="About Data":
     st.header(':violet[PhonePe Pulse - Exploring Indian Online Money Transactions]')
     st.write('')
     st.subheader('Data Explorations include:')
-    # Add interactive bullet points
+    
     st.markdown("- :red[**Aggregated Transaction:**] State-wise Transaction Amount and Transaction Count based on different years, quarters, and transaction types.")
     st.markdown("- :red[**Aggregated User:**] PhonePe Users State-wise based on different years, quarters, and user phone brand.")
     st.markdown("- :red[**Map Transaction:**] Total Transaction amount and count district-wise for all years and quarters of all states.")
@@ -425,7 +423,6 @@ if select=="About Data":
     
     sc1, sc2, sc3 = st.columns(3)
     with sc1:
-        # Add interactive bullet points
         st.markdown("#### :violet[Location-based Analysis]")
         st.markdown("- Overall Country-wise - India")
         st.markdown("- State-wise")
@@ -434,25 +431,22 @@ if select=="About Data":
         st.markdown("- Top Categories of each")
         
     with sc2:
-        # Add interactive bullet points
         st.markdown("#### :violet[Time-based Analysis]")
         st.markdown("- Year-wise")
         st.markdown("- Quarter-wise")
         st.markdown("- Top Categories of each")
 
     with sc3:
-        # Add interactive bullet points
         st.markdown("#### :violet[Type-based Analysis]")
         st.markdown("- Transaction Type-wise")
         st.markdown("- User Brand-wise")
 
 
-
-#  Data Anlysois and Exploration 
+#  Data Analysis and Exploration Tab
 elif select=="Data Analysis":
     main = st.selectbox('Select any Process',('','Data Extraction','Data Transform','Data Exploration'))
     if main=='Data Extraction':
-        st.subheader(':violet[Data Collection and Extraction:]')
+        st.subheader(':violet[In Data Collection and Extraction:]')
         st.markdown('- In the data extraction phase, Python is employed to clone data from the PhonePe Pulse GitHub repository. This raw data is then locally stored in JSON format.') 
         st.markdown('- As part of this step, the unstructured data is transformed into a structured format in preparation for preprocessing.')    
         if st.button("**Extract Data**"):
@@ -460,7 +454,7 @@ elif select=="Data Analysis":
             st.success('**Extracted!**')
     
     elif main=='Data Transform': 
-        st.subheader(':violet[Data Transformation:]')
+        st.subheader(':violet[In Data Transformation:]')
         st.markdown('- During the data transformation phase, the collected data undergoes essential preprocessing processes, such as data cleaning and handling missing values.') 
         st.markdown('- Following this, the processesd and structured data is inserted into a MySQL Database, serving as a Ware House of datas for further in-depth analysis and visualization.')
         if st.button('**Transform Data**'):
@@ -468,12 +462,18 @@ elif select=="Data Analysis":
             st.success('**Transformed!**')
     
     elif main=='Data Exploration':
+        st.subheader(':violet[In Data Exploration:]')
+        st.markdown(' - The stored data in the MySQL database is queried to get insightful information for visualization.') 
+        st.markdown(" - The datas will be explored by using Python's Plotly library, for built-in Geo maps and visualization plots.") 
+        st.markdown(' - Then Users are presented with these visualized plots through a Streamlit application and provided with a dynamic dasboard to gain valuable insights from the PhonePe Pulse dataset.')
+
         transaction, users = st.tabs(['Trasactions','Users'])
         with transaction:
             location, time, type = st.tabs(['Location based Anlysis','Time based Anlysis','Type based Anlysis'])
             with location:
                 tab_india, tab_state, tab_district, tab_pincode =st.tabs(['India','States','Districts','Pincodes'])
                 with tab_india:
+                    st.write('')
                     year_select = st.select_slider('Select a Year', options = ['All Years','2018','2019','2020','2021','2022','2023'], key='sst_i')
                     if year_select == "All Years":
                         df1 = pd.read_sql_query(f"SELECT state, SUM(transaction_amount) AS Transaction_amount, SUM(transaction_count) AS Transaction_count FROM Aggregate_Transaction GROUP BY state",mydb)
@@ -518,8 +518,8 @@ elif select=="Data Analysis":
                             if state and year:
                                 df1 = pd.read_sql_query(f"SELECT state, year, quarter, SUM(transaction_amount) AS Transaction_amount FROM Aggregate_Transaction WHERE state='{state}' and year='{year}' GROUP BY quarter ORDER BY Transaction_amount", mydb)
                                 df2 = pd.read_sql_query(f"SELECT state, year, quarter, SUM(transaction_count) AS Transaction_count FROM Aggregate_Transaction WHERE state='{state}' and year='{year}' GROUP BY quarter ORDER by Transaction_count", mydb)
-                            Plotly.bar_plot(df1, 'quarter', 'Transaction_amount', f"{state} Transaction Amount (INR) in {year}", f" Quarters of {year}", 'Transaction Amount (INR)', 0.3)
-                            Plotly.bar_plot(df2, 'quarter', 'Transaction_count', f"{state} Transaction Count in {year}", f" Quarters of {year}", 'Transaction Count', 0.34)    
+                            Plotly.bar_plot(df1, 'quarter', 'Transaction_amount', f"{state} Transaction Amount (INR) in {year}", f" Quarters of {year}", 'Transaction Amount (INR)', 0.27)
+                            Plotly.bar_plot(df2, 'quarter', 'Transaction_count', f"{state} Transaction Count in {year}", f" Quarters of {year}", 'Transaction Count', 0.29)    
                             col1, col2 = st.columns(2)
                             with col1:
                                 Plotly.pie_plot(df1, df1['quarter'], df1['Transaction_amount'], f"{state} Transaction Amount in {year}")
@@ -530,8 +530,8 @@ elif select=="Data Analysis":
                             if state and year and quarter:
                                 df3 = pd.read_sql_query(f"SELECT state, year, quarter, transaction_type, SUM(transaction_amount) AS Transaction_amount FROM Aggregate_Transaction WHERE state='{state}' and year='{year}' and quarter='{quarter}' GROUP BY transaction_type ORDER BY Transaction_amount", mydb)
                                 df4 = pd.read_sql_query(f"SELECT state, year, quarter, transaction_type, SUM(transaction_count) AS Transaction_count FROM Aggregate_Transaction WHERE state='{state}' and year='{year}' and quarter='{quarter}' GROUP BY transaction_type ORDER by Transaction_count", mydb)
-                            Plotly.horizontal_bar_plot(df3, 'Transaction_amount', 'transaction_type', f"{state} Transaction Amount (INR) in {year}-{quarter}", 'Transaction Amount (INR)'," Transaction Types ", 0.3,300,500)
-                            Plotly.horizontal_bar_plot(df4, 'Transaction_count', 'transaction_type', f"{state} Transaction Count in {year}-{quarter}", 'Transaction Count', " Transaction Types ", 0.35,300,500)
+                            Plotly.horizontal_bar_plot(df3, 'Transaction_amount', 'transaction_type', f"{state} Transaction Amount (INR) in {year}-{quarter}", 'Transaction Amount (INR)'," Transaction Types ", 0.25,300,500)
+                            Plotly.horizontal_bar_plot(df4, 'Transaction_count', 'transaction_type', f"{state} Transaction Count in {year}-{quarter}", 'Transaction Count', " Transaction Types ", 0.27,300,500)
                             col1, col2 = st.columns(2)
                             with col1:
                                 Plotly.pie_plot(df3, df3['transaction_type'], df3['Transaction_amount'], f"{state} Transaction Amount in {year}-{quarter}")                      
@@ -542,8 +542,8 @@ elif select=="Data Analysis":
                             if state and year and transaction:
                                 df5 = pd.read_sql_query(f"SELECT year, transaction_type, SUM(transaction_amount) AS Transaction_amount FROM Aggregate_Transaction WHERE transaction_type='{transaction}' GROUP BY year ORDER BY Transaction_amount", mydb)
                                 df6 = pd.read_sql_query(f"SELECT year, transaction_type, SUM(transaction_count) AS Transaction_count FROM Aggregate_Transaction WHERE transaction_type='{transaction}' GROUP BY year ORDER by Transaction_Count", mydb)
-                                Plotly.bar_plot(df5, 'year', 'Transaction_amount', f"{state} Transaction Amount (INR) in {year} by {transaction}", f"{transaction} type Year wise", 'Transaction Amount (INR)',  0.3)
-                                Plotly.bar_plot(df6, 'year', 'Transaction_count', f"{state} Transaction Count in {year} by {transaction}", f"{transaction} type Year wise", 'Transaction Count',  0.32)
+                                Plotly.bar_plot(df5, 'year', 'Transaction_amount', f"{state} Transaction Amount (INR) in {year} by {transaction}", f"{transaction} type Year wise", 'Transaction Amount (INR)',  0.15)
+                                Plotly.bar_plot(df6, 'year', 'Transaction_count', f"{state} Transaction Count in {year} by {transaction}", f"{transaction} type Year wise", 'Transaction Count',  0.17)
                             col1, col2 = st.columns(2)
                             with col1:
                                 Plotly.pie_plot(df5, df5['year'], df5['Transaction_amount'], f"Transaction Amount by {transaction}")
@@ -588,8 +588,8 @@ elif select=="Data Analysis":
                         if state and show_by_state:    
                             df1 = pd.read_sql_query(f"SELECT district, state, SUM(transaction_amount) AS Transaction_amount FROM map_transaction WHERE state='{state}' GROUP BY district ORDER BY Transaction_amount",mydb)
                             df2 = pd.read_sql_query(f"SELECT district, state, SUM(transaction_count) AS Transaction_count FROM map_transaction WHERE state='{state}' GROUP BY district ORDER BY Transaction_count",mydb)
-                            Plotly.horizontal_bar_plot(df1,'Transaction_amount','district', 'District wise Transaction Amount (INR)', 'Transaction Amount (INR)',f"Districts of {state}",0.3,600,1000)
-                            Plotly.horizontal_bar_plot(df2,'Transaction_count','district','District wise Transaction Count','Transaction Count', f"District of {state}",0.32, 600,1000)
+                            Plotly.horizontal_bar_plot(df1,'Transaction_amount','district', f"{state} - District wise Transaction Amount (INR)", 'Transaction Amount (INR)',f"Districts of {state}",0.25,600,1000)
+                            Plotly.horizontal_bar_plot(df2,'Transaction_count','district',f"{state} - District wise Transaction Count",'Transaction Count', f"District of {state}",0.28, 600,1000)
 
                         if state and district and show_by_district:
                             df1 = pd.read_sql_query(f"SELECT district, state, year, SUM(transaction_amount) AS Transaction_amount FROM map_transaction WHERE state='{state}' and district='{district}' GROUP BY year ORDER BY Transaction_amount",mydb)
@@ -667,10 +667,10 @@ elif select=="Data Analysis":
                     show_by_state = st.button("Show by State", key='tp_ss')
                     if state and show_by_state:                            
                         df1 = pd.read_sql_query(f"SELECT pincode, state, SUM(transaction_amount) AS Transaction_amount, SUM(transaction_count) AS Transaction_count FROM top_transaction WHERE state='{state}' GROUP BY pincode ORDER BY Transaction_amount DESC",mydb)
-                        st.subheader(f"Transaction Amount of Pincodes of {state}")
+                        st.subheader(f"Transaction Amount by Pincodes of {state}")
                         st.write(' ')
                         st.bar_chart(data=df1, x='pincode', y='Transaction_amount', width=800, height=800, use_container_width=True)
-                        st.subheader(f"Transaction Count of Pincodes of {state}")
+                        st.subheader(f"Transaction Count by Pincodes of {state}")
                         st.write(' ')
                         st.bar_chart(data=df1, x='pincode', y='Transaction_count', width=800, height=800, use_container_width=True)
                         
@@ -678,7 +678,9 @@ elif select=="Data Analysis":
             with time:
                 year_t_tab , quarter_t_tab, top_t_tab = st.tabs(['Year','Quarter','Top Categories'])
                 with year_t_tab:
-                    if st.button('Show by all Years'):
+                    year = st.selectbox('Select year', ('','All Years','2018', '2019', '2020', '2021', '2022', '2023'), key='tty_y')
+                    show_by_year = st.button('Show by Year', key='tty_sy')
+                    if year == 'All Years' :
                         df1 = pd.read_sql_query(f"SELECT year, SUM(transaction_amount) AS Transaction_amount FROM Aggregate_Transaction GROUP BY year ORDER BY Transaction_amount",mydb)
                         df2 = pd.read_sql_query(f"SELECT year, SUM(transaction_count) AS Transaction_count FROM Aggregate_Transaction GROUP BY year ORDER BY Transaction_count",mydb)
                         Plotly.bar_plot(df1,'year','Transaction_amount', "Year wise Transaction Amount (INR) by all States", ' Years ', 'Transaction Amount (INR)',0.3)
@@ -689,13 +691,11 @@ elif select=="Data Analysis":
                         with col2:
                             Plotly.pie_plot(df2,df2['year'],df2['Transaction_count'],'Year wise Transaction Count')
             
-                    year = st.selectbox('Select year', ('', '2018', '2019', '2020', '2021', '2022', '2023'), key='tty_y')
-                    show_by_year = st.button('Show by Year', key='tty_sy')
-                    if year and show_by_year:
+                    if year!= 'All Years' and show_by_year:
                         df3 = pd.read_sql_query(f"SELECT quarter, SUM(transaction_amount) AS Transaction_amount FROM Aggregate_Transaction WHERE year='{year}' GROUP BY quarter ORDER BY Transaction_amount",mydb)
                         df4 = pd.read_sql_query(f"SELECT quarter, SUM(transaction_count) AS Transaction_count FROM Aggregate_Transaction WHERE year='{year}' GROUP BY quarter ORDER BY Transaction_count",mydb)
-                        Plotly.bar_plot(df3,'quarter','Transaction_amount', f"Quarter wise Transaction Amount (INR) by all States in {year}", f"Quarters of {year}" , 'Transaction Amount (INR)',0.28)
-                        Plotly.bar_plot(df4,'quarter','Transaction_count',f"Quarter wise Transaction Count by all States in {year}", f"Quarters of {year}" , 'Transaction Count',0.3)    
+                        Plotly.bar_plot(df3,'quarter','Transaction_amount', f"Quarter wise Transaction Amount (INR) by all States in {year}", f"Quarters of {year}" , 'Transaction Amount (INR)',0.24)
+                        Plotly.bar_plot(df4,'quarter','Transaction_count',f"Quarter wise Transaction Count by all States in {year}", f"Quarters of {year}" , 'Transaction Count',0.26)    
                         col1,col2 = st.columns(2)
                         with col1:
                             Plotly.pie_plot(df3,df3['quarter'],df3['Transaction_amount'],f"Quarter wise Transaction Amount in {year}")
@@ -741,8 +741,8 @@ elif select=="Data Analysis":
                     df1 = pd.read_sql_query(f"SELECT transaction_type, SUM(transaction_amount) AS Transaction_amount FROM Aggregate_Transaction GROUP BY transaction_type ORDER BY Transaction_amount", mydb)
                     df2 = pd.read_sql_query(f"SELECT transaction_type, SUM(transaction_count) AS Transaction_count FROM Aggregate_Transaction GROUP BY transaction_type ORDER by Transaction_Count", mydb)
                     
-                    Plotly.horizontal_bar_plot(df1,'Transaction_amount','transaction_type', "Overall Transaction Amount (INR) in all Years by Each Transaction Type", 'Transaction Amount (INR)', 'Transaction Type', 0.15,600,700)
-                    Plotly.horizontal_bar_plot(df2, 'Transaction_count', 'transaction_type', "Overall Transaction Count in all Years by Each Transaction Type", 'Transaction Count', 'Transaction Type', 0.2,600,700)
+                    Plotly.horizontal_bar_plot(df1,'Transaction_amount','transaction_type', "Overall Transaction Amount (INR) in all Years by Each Transaction Type", 'Transaction Amount (INR)', 'Transaction Type', 0.24,600,700)
+                    Plotly.horizontal_bar_plot(df2, 'Transaction_count', 'transaction_type', "Overall Transaction Count in all Years by Each Transaction Type", 'Transaction Count', 'Transaction Type', 0.26,600,700)
                     st.write(' ')
                     col1, col2 = st.columns(2)
                     with col1:    
@@ -766,8 +766,8 @@ elif select=="Data Analysis":
                         df1 = pd.read_sql_query(f"SELECT year, transaction_type, SUM(transaction_amount) AS Transaction_amount FROM Aggregate_Transaction WHERE year='{year}' GROUP BY transaction_type ORDER BY Transaction_amount", mydb)
                         df2 = pd.read_sql_query(f"SELECT year, transaction_type, SUM(transaction_count) AS Transaction_count FROM Aggregate_Transaction  WHERE year='{year}' GROUP BY transaction_type ORDER by Transaction_Count", mydb)
                         
-                        Plotly.horizontal_bar_plot(df1,'Transaction_amount','transaction_type', f"Overall Transaction Amount (INR) in {year} by Each Transaction Type", 'Transaction Amount (INR)', 'Transaction Type', 0.15,600,700)
-                        Plotly.horizontal_bar_plot(df2, 'Transaction_count', 'transaction_type', f"Overall Transaction Count in {year} by Each Transaction Type", 'Transaction Count', 'Transaction Type', 0.2,600,700)
+                        Plotly.horizontal_bar_plot(df1,'Transaction_amount','transaction_type', f"Overall Transaction Amount (INR) in {year} by Each Transaction Type", 'Transaction Amount (INR)', 'Transaction Type', 0.24,600,700)
+                        Plotly.horizontal_bar_plot(df2, 'Transaction_count', 'transaction_type', f"Overall Transaction Count in {year} by Each Transaction Type", 'Transaction Count', 'Transaction Type', 0.26,600,700)
                         st.write(' ')
                         col1, col2 = st.columns(2)
                         with col1:    
@@ -779,8 +779,8 @@ elif select=="Data Analysis":
                         df3 = pd.read_sql_query(f"SELECT transaction_type, SUM(transaction_amount) AS Transaction_amount FROM Aggregate_Transaction WHERE year='{year}' and quarter='{quarter}' GROUP BY transaction_type ORDER BY Transaction_amount", mydb)
                         df4 = pd.read_sql_query(f"SELECT transaction_type, SUM(transaction_count) AS Transaction_count FROM Aggregate_Transaction  WHERE year='{year}' and quarter='{quarter}' GROUP BY transaction_type ORDER by Transaction_Count", mydb)
                         
-                        Plotly.horizontal_bar_plot(df3,'Transaction_amount','transaction_type', f"Overall Transaction Amount (INR) in {year}-{quarter} by Each Transaction Type", 'Transaction Amount (INR)', 'Transaction Type', 0.15,600,700)
-                        Plotly.horizontal_bar_plot(df4, 'Transaction_count', 'transaction_type', f"Overall Transaction Count in {year}-{quarter} by Each Transaction Type", 'Transaction Count', 'Transaction Type', 0.2,600,700)
+                        Plotly.horizontal_bar_plot(df3,'Transaction_amount','transaction_type', f"Overall Transaction Amount (INR) in {year}-{quarter} by Each Transaction Type", 'Transaction Amount (INR)', 'Transaction Type', 0.25,600,700)
+                        Plotly.horizontal_bar_plot(df4, 'Transaction_count', 'transaction_type', f"Overall Transaction Count in {year}-{quarter} by Each Transaction Type", 'Transaction Count', 'Transaction Type', 0.27,600,700)
                         st.write(' ')
                         col1, col2 = st.columns(2)
                         with col1:    
@@ -835,13 +835,13 @@ elif select=="Data Analysis":
                         Plotly.horizontal_bar_plot(df2, 'Transaction_count', 'state', f"Top Highest Transaction Count in {year}-{quarter} by {transaction}", 'Transaction Count', ' Top States name ', 0.2, 600,800)
 
 
-
     # User wise Analysis
         with users:
             location_user, time_user, type_user = st.tabs(['Location based Anlysis','Time based Anlysis','Type based Anlysis'])
             with location_user:
                 tab_u_india, tab_u_state, tab_u_district, tab_u_pincode =st.tabs(['India','States','Districts','Pincodes'])
                 with tab_u_india:
+                    st.write('')
                     year_select = st.select_slider('Select a Year', options = ['All Years','2018','2019','2020','2021','2022'], key='ssu_i')
                     if year_select == 'All Years':
                         df1 = pd.read_sql_query(f"SELECT state, SUM(user_count) AS User_Count FROM Aggregate_User GROUP BY state",mydb)
@@ -857,7 +857,7 @@ elif select=="Data Analysis":
                         if st.button('Show by State', key='ous_ss'):                           
                             df1 = pd.read_sql_query(f"SELECT state, year, SUM(user_count) AS User_Count FROM Aggregate_User WHERE state='{state}' GROUP BY year ORDER BY user_count",mydb)
                             Plotly.bar_plot(df1,'year','User_Count',f"{state} Year wise User Count", '  Year  ', ' User Count ',0.35)
-                            Plotly.pie_plot(df1,df1['year'],df1['User_Count'],f"{state} Year wise User Count",0.3)
+                            Plotly.pie_plot(df1,df1['year'],df1['User_Count'],f"{state} Year wise User Count",0.35)
                     
                     with indepth_u_state:
                         col1,col2,col3,col4 = st.columns(4)
@@ -1050,6 +1050,89 @@ elif select=="Data Analysis":
                         df3 = pd.read_sql_query(f"SELECT state, year, quarter, user_brand, SUM(user_count) as User_Count FROM Aggregate_user WHERE user_brand='{brand}' and year='{year}' and quarter='{quarter}' GROUP BY state ORDER BY User_Count DESC LIMIT 10", mydb)
                         Plotly.horizontal_bar_plot(df3,'User_Count','state', f"Top Highest User Count States in {year}-{quarter} by {brand}", 'User Count', ' Top States name ', 0.25, 600,800)
 
+# Data Insights Tab
+elif select=='Data Insights':
+    years = ['2018', '2019', '2020', '2021', '2022', '2023']
 
-elif select=='Exit Data':
-    st.markdown("<h1 style='text-align: center; color: #6739B7;'>Thank You!!!</h1>", unsafe_allow_html=True)
+    top1, top2 = st. columns(2)
+    with top1:
+        st.subheader(':violet[**Aggregated Transaction:**]')
+        dfs = [] 
+        for year in years:
+            df1 = pd.read_sql_query(f"SELECT State, SUM(transaction_amount) as Transaction_Amount FROM aggregate_transaction WHERE year = '{year}' GROUP BY state ORDER BY Transaction_Amount DESC LIMIT 1", mydb)
+            df1['year'] = year
+            df1.set_index('year', inplace=True)
+            df1['Transaction_Amount'] = df1['Transaction_Amount'].map('{:,.0f}'.format)
+            dfs.append(df1)
+        combined_df = pd.concat(dfs)
+        st.table(combined_df)
+    with top2:
+        st.subheader(':violet[**Aggregated User:**]')
+        year_s=['2018','2019','2020','2021','2022']
+        dfs = []
+        for year in year_s:
+            df2 = pd.read_sql_query(f"select State, sum(user_count) as User_Count FROM aggregate_user WHERE year='{year}' GROUP BY state order by User_Count DESC limit 1", mydb)
+            df2['year'] = year
+            df2.set_index('year',inplace=True)
+            df2['User_Count'] = df2['User_Count'].map('{:,.0f}'.format)
+            dfs.append(df2)    
+        combined_df = pd.concat(dfs)
+        st.table(combined_df) 
+
+    st.write(' ')
+    st.write(' ')                   
+    
+    top3, top4 = st. columns(2)
+    with top3:
+        st.subheader(':violet[**Map Transaction**]')
+        dfs = [] 
+        for year in years:
+            df3 = pd.read_sql_query(f"select District, sum(transaction_amount) AS Transaction_Amount FROM map_transaction WHERE year='{year}' GROUP BY district ORDER BY Transaction_Amount DESC limit 1", mydb)
+            df3['year'] = year
+            df3.set_index('year',inplace=True)
+            df3['Transaction_Amount'] = df3['Transaction_Amount'].map('{:,.0f}'.format)
+            dfs.append(df3)
+        combined_df = pd.concat(dfs)
+        st.table(combined_df)
+    with top4:
+        st.subheader(':violet[**Map User:**]')
+        dfs = [] 
+        for year in years:
+            df4 = pd.read_sql_query(f"select District, sum(registered_users) AS Registered_Users FROM map_user WHERE year='{year}' GROUP BY district ORDER BY Registered_Users DESC limit 1", mydb)
+            df4['year'] = year
+            df4.set_index('year',inplace=True)
+            df4['Registered_Users'] = df4['Registered_Users'].map('{:,.0f}'.format)
+            dfs.append(df4)
+        combined_df = pd.concat(dfs)
+        st.table(combined_df)
+
+    st.write(' ')
+    st.write(' ')    
+
+    top5, top6 = st. columns(2)
+    with top5:
+        st.subheader(":violet[**Top Transaction**]")
+        dfs = [] 
+        for year in years:
+            df5 = pd.read_sql_query(f"select Pincode, sum(transaction_amount) AS Transaction_Amount FROM top_transaction WHERE year='{year}' GROUP BY pincode ORDER BY Transaction_Amount DESC limit 1", mydb)
+            df5['year'] = year
+            df5.set_index('year',inplace=True)
+            df5['Transaction_Amount'] = df5['Transaction_Amount'].map('{:,.0f}'.format)
+            dfs.append(df5)
+        combined_df = pd.concat(dfs)
+        st.table(combined_df)
+    with top6:
+        st.subheader(":violet[**Top User:**]") 
+        dfs = [] 
+        for year in years:
+            df6 = pd.read_sql_query(f"select Pincode, sum(registered_users) AS Registered_Users FROM top_user WHERE year='{year}' GROUP BY pincode ORDER BY Registered_Users DESC limit 1", mydb)
+            df6['year'] = year
+            df6.set_index('year',inplace=True)
+            df6['Registered_Users'] = df6['Registered_Users'].map('{:,.0f}'.format)
+            dfs.append(df6)            
+        combined_df = pd.concat(dfs)
+        st.table(combined_df)       
+
+    st.markdown("<h1 style='text-align: center; color: red;'>Thank You!!!</h1>", unsafe_allow_html=True)
+
+    
