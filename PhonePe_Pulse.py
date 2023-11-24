@@ -12,7 +12,7 @@ import plotly.express as px
 from PIL import Image
 
 # Establishing Python-MySQL Connection
-mydb = pymysql.connect(host="127.0.0.1", user="root", password="Koushik@29")
+mydb = pymysql.connect(host="127.0.0.1", user=enter_username, password= enter_password)
 sql = mydb.cursor()
 
 # Phonepe data collection from the Github repository
